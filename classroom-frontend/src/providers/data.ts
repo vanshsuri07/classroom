@@ -25,7 +25,7 @@ const options : CreateDataProviderOptions = {
                 })
 
                 return params;
-                
+
            },
         
            mapResponse: async(response) => {
@@ -34,6 +34,10 @@ const options : CreateDataProviderOptions = {
             return payload.data ?? [];
 
 
+           },
+           getTotalCount: async (response) => {
+            const payload: ListResponse = await response.json();
+            return payload.pagination?.total ?? payload.data?.length ?? 0;
            }
    }
 }

@@ -16,7 +16,7 @@ import { useMemo, useState } from 'react'
 
 const SubjectsList = () => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedDepartment, setSelectedDepartment] = useState('all');
+    const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
 
     const deparmentFilters = selectedDepartment === 'all' ? [] : [
         {field: 'department', operator: 'eq' as const, value: selectedDepartment}
@@ -61,9 +61,15 @@ const SubjectsList = () => {
     ],[]),
         refineCoreProps: {
             resource: 'subjects',
-            pagination: { pageSize: 10, mode: 'server'},
+            pagination: { 
+                pageSize: 10, 
+                mode: 'server'
+            },
             filters: {
-                permanent: [...deparmentFilters, ...searchFilters],
+                permanent: [
+                    ...deparmentFilters, 
+                    ...searchFilters
+                ],
             },
             sorters: {
                 initial: [
