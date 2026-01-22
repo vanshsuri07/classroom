@@ -1,57 +1,42 @@
-import { BaseRecord, DataProvider, GetListParams, GetListResponse } from "@refinedev/core";
-
-type SubjectRecord = BaseRecord & {
-   code: string;
-   name: string;
-   department: string;
-   description: string;
-};
-
-const mockSubjects: SubjectRecord[] = [
-   {
-      id: "1",
-      code: "CS101",
-      name: "Introduction to Computer Science",
-      department: "Computer Science",
-      description: "Foundational concepts in programming, algorithms, and computational thinking.",
-      createdAt: new Date().toISOString(),
-   },
-   {
-      id: "2",
-      code: "BIO210",
-      name: "Molecular Biology",
-      department: "Biology",
-      description: "Structure and function of DNA, RNA, proteins, and gene regulation.",
-   
-      createdAt: new Date().toISOString(),},
-   {
-      id: "3",
-      code: "ECON220",
-      name: "Macroeconomics",
-      department: "Economics",
-      description: "Economic growth, inflation, unemployment, and fiscal/monetary policy.",
-      createdAt: new Date().toISOString(),
-   },
-];
-
-export const dataProvider: DataProvider = {
-   getList: async <TData extends BaseRecord = BaseRecord>({ resource }:
-   GetListParams): Promise<GetListResponse<TData>> => {
-       if(resource !== 'subjects') return {data: [] as TData[], total: 0};
-
-     return {
-            data: mockSubjects as unknown as TData[],
-            total: mockSubjects.length,
-     }
+import { BACKEND_BASE_URL } from "@/constants";
+import { ListResponse } from "@/types";
+import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
 
-  },
+const options : CreateDataProviderOptions = {
+   getList: {
+           getEndpoint: ({resource}) => resource,
 
-  getOne : async () => { throw new Error("This function is not implemented yet.") },
-  create : async () => { throw new Error("This function is not implemented yet.") },
-  update : async () => { throw new Error("This function is not implemented yet.") },
- 
-  deleteOne : async () => { throw new Error("This function is not implemented yet.") },
+           buildQueryParams: async ({ resource, pagination, filters}) => {
+                const page = pagination?.currentPage ?? 1;
+                const pageSize = pagination?.pageSize ?? 10;
 
-  getApiUrl: () => '',
-  }
+                const params: Record<string, string|number>= {page, limit: pageSize};
+
+                filters?.forEach((filter) => {
+                        const field = 'field' in filter ? filter.field : '';
+
+                        const value = String(filter.value);
+
+                        if(resource === 'subjects') {
+                                if(field === 'department') params.department = value;
+                                if(field === 'name' || field === 'code') params.search = value;
+                        }
+                })
+
+                return params;
+                
+           },
+        
+           mapResponse: async(response) => {
+            const payload: ListResponse = await response.json();
+
+            return payload.data ?? [];
+
+
+           }
+   }
+}
+
+const {dataProvider} = createDataProvider(BACKEND_BASE_URL,options);
+export {dataProvider};
