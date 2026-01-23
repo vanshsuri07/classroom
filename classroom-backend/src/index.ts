@@ -1,5 +1,7 @@
 import express from "express";
 import subjectsRouter from "./routes/subject";
+import classesRouter from "./routes/classes";
+import usersRouter from "./routes/users";
 import cors from 'cors';
 import securityMiddleware from "./middleware/security";
 import { auth } from "./lib/auth";
@@ -22,7 +24,8 @@ app.all('/api/auth/*splat', toNodeHandler(auth));
 app.use(express.json());
 app.use(securityMiddleware);
 app.use('/api/subjects', subjectsRouter);
-
+app.use('/api/classes',classesRouter)
+app.use('/api/users', usersRouter);
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });

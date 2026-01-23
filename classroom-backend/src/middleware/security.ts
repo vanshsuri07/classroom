@@ -37,6 +37,7 @@ const securityMiddleware = async (
         break;
     }
 
+    // Create client with additional rate limit rule
     const client = aj.withRule(
       slidingWindow({
         mode: "LIVE",
@@ -54,33 +55,46 @@ const securityMiddleware = async (
       },
     };
 
+    // Make ONE protect call with all rules combined
     const decision = await client.protect(arcjetRequest);
 
-console.log('Arcjet decision:', {
-  conclusion: decision.conclusion,
-  reason: decision.reason,
-  ttl: decision.reason.isRateLimit() ? decision.reason.resetTime : null
-});
+    console.log('Arcjet decision:', {
+      conclusion: decision.conclusion,
+      reason: decision.reason,
+      ttl: decision.reason.isRateLimit() ? decision.reason.resetTime : null
+    });
 
-    if (decision.isDenied() && decision.reason.isBot()) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: "Automated requests are not allowed",
+    if (decision.isDenied()) {
+      console.log('Request denied:', {
+        reasonType: decision.reason.type,
+        isBot: decision.reason.isBot(),
+        isRateLimit: decision.reason.isRateLimit(),
+        isShield: decision.reason.isShield(),
       });
-    }
+      
+      // Handle bot detection
+      if (decision.reason.isBot()) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "Automated requests are not allowed",
+        });
+      }
 
-    if (decision.isDenied() && decision.reason.isShield()) {
-      return res.status(403).json({
-        error: "Forbidden",
-        message: "Request blocked by security policy",
-      });
-    }
+      // Handle shield protection
+      if (decision.reason.isShield()) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "Request blocked by security policy",
+        });
+      }
 
-    if (decision.isDenied() && decision.reason.isRateLimit()) {
-      return res.status(429).json({
-        error: "Too Many Requests",
-        message,
-      });
+      // Handle rate limiting
+      if (decision.reason.isRateLimit()) {
+        return res.status(429).json({
+          error: "Too Many Requests",
+          message,
+        });
+      }
     }
 
     next();

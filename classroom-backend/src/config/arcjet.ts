@@ -14,15 +14,17 @@ const aj = arcjet({
       mode: "LIVE", 
       allow: [
         "CATEGORY:SEARCH_ENGINE", 
-         "CATEGORY:PREVIEW", // Link previews e.g. Slack, Discord
-         "CATEGORY:UNKNOWN" // Allow UNKNOWN to reduce false positives
+         "CATEGORY:PREVIEW",
+         "CATEGORY:UNKNOWN"
+          // Link previews e.g. Slack, Discord
+          // Allow UNKNOWN to reduce false positives
       ],
     }),
-    slidingWindow({
-        mode: "LIVE",
-        interval:'2s',
-        max: 5,
-    })
+    // slidingWindow({
+    //     mode: "LIVE",
+    //     interval:'2s',
+    //     max: 5,
+    // })
   ],
 });
 
