@@ -30,7 +30,6 @@ import { classSchema } from "@/lib/schema";
 import UploadWidget from "@/components/upload-widget";
 import { Subject, User } from "@/types";
 import z from "zod";
-import { subjects, teachers } from "@/constants";
 
 const ClassesCreate = () => {
   const back = useBack();
@@ -54,21 +53,6 @@ const ClassesCreate = () => {
   } = form;
 
   const bannerPublicId = form.watch("bannerCldPubId");
-  const setBannerImage = (file, field) => {
-   if (file) {
-      field.onChange(file.url);
-      form.setValue("bannerCldPubId", file.publicId, {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-    } else {
-      field.onChange('');
-      form.setValue("bannerCldPubId", '', {
-        shouldValidate: true,
-        shouldDirty: true,
-      })
-    }
-  }
 
   const onSubmit = async (values: z.infer<typeof classSchema>) => {
     try {
@@ -79,33 +63,33 @@ const ClassesCreate = () => {
   };
 
   // Fetch subjects list
-  // const { query: subjectsQuery } = useList<Subject>({
-  //   resource: "subjects",
-  //   pagination: {
-  //     pageSize: 100,
-  //   },
-  // });
+  const { query: subjectsQuery } = useList<Subject>({
+    resource: "subjects",
+    pagination: {
+      pageSize: 100,
+    },
+  });
 
-  // // Fetch teachers list
-  // const { query: teachersQuery } = useList<User>({
-  //   resource: "users",
-  //   filters: [
-  //     {
-  //       field: "role",
-  //       operator: "eq",
-  //       value: "teacher",
-  //     },
-  //   ],
-  //   pagination: {
-  //     pageSize: 100,
-  //   },
-  // });
+  // Fetch teachers list
+  const { query: teachersQuery } = useList<User>({
+    resource: "users",
+    filters: [
+      {
+        field: "role",
+        operator: "eq",
+        value: "teacher",
+      },
+    ],
+    pagination: {
+      pageSize: 100,
+    },
+  });
 
-  // const teachers = teachersQuery.data?.data || [];
-  // const teachersLoading = teachersQuery.isLoading;
+  const teachers = teachersQuery.data?.data || [];
+  const teachersLoading = teachersQuery.isLoading;
 
-  // const subjects = subjectsQuery.data?.data || [];
-  // const subjectsLoading = subjectsQuery.isLoading;
+  const subjects = subjectsQuery.data?.data || [];
+  const subjectsLoading = subjectsQuery.isLoading;
 
   return (
     <CreateView className="class-view">
@@ -150,8 +134,21 @@ const ClassesCreate = () => {
                                 }
                               : null
                           }
-                          onChange={(file: any, field: any) => setBannerImage(file, field)}
-              
+                          onChange={(file) => {
+                            if (file) {
+                              field.onChange(file.url);
+                              form.setValue("bannerCldPubId", file.publicId, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            } else {
+                              field.onChange("");
+                              form.setValue("bannerCldPubId", "", {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            }
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -197,7 +194,7 @@ const ClassesCreate = () => {
                             field.onChange(Number(value))
                           }
                           value={field.value?.toString()}
-                          disabled={false}
+                          disabled={subjectsLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
@@ -230,8 +227,8 @@ const ClassesCreate = () => {
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                                value={field.value?.toString()}
-                                disabled={false}
+                          value={field.value?.toString()}
+                          disabled={teachersLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">
