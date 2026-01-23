@@ -18,7 +18,7 @@ const SubjectsList = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
 
-    const deparmentFilters = selectedDepartment === 'all' ? [] : [
+    const departmentFilters = selectedDepartment === 'all' ? [] : [
         {field: 'department', operator: 'eq' as const, value: selectedDepartment}
     ];
 
@@ -67,7 +67,7 @@ const SubjectsList = () => {
             },
             filters: {
                 permanent: [
-                    ...deparmentFilters, 
+                    ...departmentFilters, 
                     ...searchFilters
                 ],
             },
