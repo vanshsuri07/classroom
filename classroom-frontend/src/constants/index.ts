@@ -17,6 +17,7 @@ export const ROLE_OPTIONS = [
         label: "Teacher",
         icon: School,
     },
+    
 ];
 
 export const DEPARTMENTS = [
@@ -75,40 +76,3 @@ export const BASE_URL =  import.meta.env.VITE_API_URL;
 
 export const CLOUDINARY_UPLOAD_PRESET = getEnvVar("VITE_CLOUDINARY_UPLOAD_PRESET");
 
-export const teachers = [
-    {
-        id: "1",
-        name: "John Doe",
-    },
-    {
-        id: "2",
-        name: "Jane Smith",
-    },
-    {
-        id: "3",
-        name: "Dr. Alan Turing",
-    },
-];
-
-export const subjects = [
-    {
-        id: 1,
-        name: "Mathematics",
-        code: "MATH",
-    },
-    {
-        id: 2,
-        name: "Computer Science",
-        code: "CS",
-    },
-    {
-        id: 3,
-        name: "Physics",
-        code: "PHY",
-    },
-    {
-        id: 4,
-        name: "Chemistry",
-        code: "CHEM",
-    },
-];

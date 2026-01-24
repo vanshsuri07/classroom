@@ -1,3 +1,15 @@
-type UserRoles = 'student' | 'teacher' | 'admin';
+interface Schedule {
+    day: string;
+    startTime: string;
+    endTime: string;
+}
 
-type RateLimitRole = UserRoles | "guest";
+declare namespace Express {
+    interface Locals {
+        user?: {
+            id?: string;
+            role?: 'admin' | 'teacher' | 'student';
+            [key: string]: unknown;
+        }
+    }
+}
