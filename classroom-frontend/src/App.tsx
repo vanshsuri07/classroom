@@ -12,6 +12,7 @@ import routerProvider, {
   DocumentTitleHandler,
 } from "@refinedev/react-router";
 import { dataProvider } from "./providers/data";
+import { authProvider } from "./providers/auth";
 import { Layout } from "./components/refine-ui/layout/layout";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
 import { Toaster } from "./components/refine-ui/notification/toaster";
@@ -24,6 +25,8 @@ import SubjectsList from "./pages/subjects/list";
 import ClassesList from "./pages/classes/list";
 import ClassesCreate from "./pages/classes/create";
 import ShowClasses from "./pages/classes/show";
+import Login from "./pages/login/login";
+import Signup from "./pages/signup.tsx/signup";
 
 function App() {
   return (
@@ -34,6 +37,7 @@ function App() {
           <DevtoolsProvider>
             <Refine
               dataProvider={dataProvider}
+              authProvider={authProvider}
               notificationProvider={useNotificationProvider()}
               routerProvider={routerProvider}
               options={{
@@ -43,33 +47,36 @@ function App() {
               }}
               resources={[
                 {
-                  name: 'dashboard',
-                  list: '/',
-                  meta: {label: 'Home', icon: <Home />}
+                  name: "dashboard",
+                  list: "/dashboard",
+                  meta: { label: "Home", icon: <Home /> },
                 },
                 {
                   name: "subjects",
-                  list: '/subjects',
-                  create: '/subjects/create',
-                  meta: {label: 'Subjects',icon: <BookOpen />}
+                  list: "/subjects",
+                  create: "/subjects/create",
+                  meta: { label: "Subjects", icon: <BookOpen /> },
                 },
                 {
                   name: "classes",
-                  list: '/classes',
-                  create: '/classes/create',
-                  show: '/classes/show/:id',
-                  meta: {label: 'Classes',icon: <GraduationCap />}
-                }
+                  list: "/classes",
+                  create: "/classes/create",
+                  show: "/classes/show/:id",
+                  meta: { label: "Classes", icon: <GraduationCap /> },
+                },
               ]}
             >
               <Routes>
-                <Route element={
-                  <Layout>
-                    <Outlet />
-                  </Layout>
-                }>
-
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Signup />} />
+                <Route
+                  element={
+                    <Layout>
+                      <Outlet />
+                    </Layout>
+                  }
+                >
+                  <Route path="/dashboard" element={<Dashboard />} />
 
                   <Route path="subjects">
                     <Route index element={<SubjectsList />} />

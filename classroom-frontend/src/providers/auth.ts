@@ -1,0 +1,173 @@
+import { AuthProvider } from "@refinedev/core";
+import { authClient } from "@/lib/auth-client";
+
+export const authProvider: AuthProvider = {
+  login: async ({ email, password }) => {
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (error) {
+        return {
+          success: false,
+          error: {
+            name: "LoginError",
+            message: error.message || "Invalid email or password",
+          },
+        };
+      }
+
+      if (data) {
+        return {
+          success: true,
+          redirectTo: "/dashboard",
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          name: "LoginError",
+          message: "Login failed",
+        },
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          name: "LoginError",
+          message: error?.message || "An error occurred during login",
+        },
+      };
+    }
+  },
+
+  register: async ({ email, password, name, role, image, imageCldPubId }) => {
+    try {
+      // Better-auth expects specific field names
+      const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name,
+        image: image || undefined, // This is the built-in image field
+        role: role || "student", // Custom field
+        imageCldPubId: imageCldPubId || undefined, // Custom field
+      });
+
+      if (error) {
+        console.error("Registration error:", error);
+        return {
+          success: false,
+          error: {
+            name: "RegisterError",
+            message: error.message || "Registration failed",
+          },
+        };
+      }
+
+      if (data) {
+        return {
+          success: true,
+          redirectTo: "/login",
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          name: "RegisterError",
+          message: "Registration failed",
+        },
+      };
+    } catch (error: any) {
+      console.error("Registration exception:", error);
+      return {
+        success: false,
+        error: {
+          name: "RegisterError",
+          message: error?.message || "An error occurred during registration",
+        },
+      };
+    }
+  },
+
+  logout: async () => {
+    try {
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        return {
+          success: false,
+          error: {
+            name: "LogoutError",
+            message: error.message || "Logout failed",
+          },
+        };
+      }
+
+      return {
+        success: true,
+        redirectTo: "/login",
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: {
+          name: "LogoutError",
+          message: error?.message || "An error occurred during logout",
+        },
+      };
+    }
+  },
+
+  check: async () => {
+    try {
+      const session = await authClient.getSession();
+
+      if (session?.data) {
+        return {
+          authenticated: true,
+        };
+      }
+
+      return {
+        authenticated: false,
+        redirectTo: "/login",
+        logout: true,
+      };
+    } catch (error) {
+      return {
+        authenticated: false,
+        redirectTo: "/login",
+        logout: true,
+      };
+    }
+  },
+
+  getIdentity: async () => {
+    try {
+      const session = await authClient.getSession();
+
+      if (session?.data?.user) {
+        return {
+          id: session.data.user.id,
+          name: session.data.user.name,
+          email: session.data.user.email,
+          avatar: session.data.user.image,
+          role: session.data.user.role,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  onError: async (error) => {
+    console.error("Auth error:", error);
+    return { error };
+  },
+};
