@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1769028045198,
-      "tag": "0000_sloppy_synch",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1769108944123,
-      "tag": "0001_pretty_darwin",
+      "when": 1769278043145,
+      "tag": "0000_talented_mentor",
       "breakpoints": true
     }
   ]
