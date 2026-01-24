@@ -33,13 +33,13 @@ const ClassesList = () => {
     const teachers = teachersQuery?.data?.data || [];
 
     const subjectFilters = selectedSubject === 'all' ? [] : [
-        { field: 'subject', operator: 'eq' as const, value: selectedSubject}
+    { field: 'subject', operator: 'eq' as const, value: selectedSubject}
     ];
     const teacherFilters = selectedTeacher === 'all' ? [] : [
-        { field: 'teacher', operator: 'eq' as const, value: selectedTeacher}
+    { field: 'teacher', operator: 'eq' as const, value: selectedTeacher}
     ];
     const searchFilters = searchQuery ? [
-        { field: 'name', operator: 'contains' as const, value: searchQuery }
+    { field: 'name', operator: 'contains' as const, value: searchQuery }
     ] : [];
 
     const classColumns = useMemo<ColumnDef<ClassDetails>[]>(() => [
@@ -150,7 +150,7 @@ const ClassesList = () => {
                         <Select
                             value={selectedSubject} onValueChange={setSelectedSubject}
                         >
-                            <SelectTrigger className="w-[180px]">
+                            <SelectTrigger className="w-45">
                                 <SelectValue placeholder="Filter by subject" />
                             </SelectTrigger>
 
