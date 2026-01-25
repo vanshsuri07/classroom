@@ -1,13 +1,12 @@
 import {
   Refine,
-  
+  Authenticated,
 } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
-import { BrowserRouter, Route, Routes, Outlet } from "react-router";
+import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router";
 import routerProvider, {
- 
   UnsavedChangesNotifier,
   DocumentTitleHandler,
 } from "@refinedev/react-router";
@@ -19,7 +18,7 @@ import { Toaster } from "./components/refine-ui/notification/toaster";
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
 import "./App.css";
 import Dashboard from "./pages/dashboard";
-import { BookOpen,  GraduationCap, Home } from "lucide-react";
+import { BookOpen, GraduationCap, Home } from "lucide-react";
 import SubjectsCreate from "./pages/subjects/create";
 import SubjectsList from "./pages/subjects/list";
 import ClassesList from "./pages/classes/list";
@@ -31,7 +30,6 @@ import Signup from "./pages/signup.tsx/signup";
 function App() {
   return (
     <BrowserRouter>
-      
       <RefineKbarProvider>
         <ThemeProvider>
           <DevtoolsProvider>
@@ -67,13 +65,24 @@ function App() {
               ]}
             >
               <Routes>
+                {/* Public routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Signup />} />
+                
+                {/* Redirect root to dashboard */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                
+                {/* Protected routes */}
                 <Route
                   element={
-                    <Layout>
-                      <Outlet />
-                    </Layout>
+                    <Authenticated
+                      key="authenticated-layout"
+                      fallback={<Navigate to="/login" />}
+                    >
+                      <Layout>
+                        <Outlet />
+                      </Layout>
+                    </Authenticated>
                   }
                 >
                   <Route path="/dashboard" element={<Dashboard />} />

@@ -1,49 +1,30 @@
 import express from "express";
-import { and, desc, eq, getTableColumns, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql, getTableColumns } from "drizzle-orm";
 
-import { db } from "../db";
-import { user } from "../db/schema/auth";
-import { classes, departments, enrollments, subjects } from "../db/schema";
-import { getUserByEmail, getUserById } from "../controllers/users";
-import { parseRequest, RequestValidationError } from "../lib/validation";
-import { authenticate, authorizeRoles } from "../middleware/auth-middleware";
-import {
-  userCreateSchema,
-  userIdParamSchema,
-  userItemsQuerySchema,
-  userListQuerySchema,
-  userUpdateSchema,
-} from "../validation/users";
+import { db } from "../db/index.js";
+import { classes, departments, enrollments, subjects, user } from "../db/schema/index.js";
 
 const router = express.Router();
 
-// Apply authentication to all routes except the ones that need to be public
-// s
-
-// Get all users with optional role filter, search by name, and pagination
+// Get all users with optional search, role filter, and pagination
 router.get("/", async (req, res) => {
   try {
-    const {
-      role,
-      search,
-      page = 1,
-      limit = 10,
-    } = parseRequest(userListQuerySchema, req.query);
-
-    const filterConditions = [];
+    const { search, role, page = 1, limit = 10 } = req.query;
 
     const currentPage = Math.max(1, +page);
     const limitPerPage = Math.max(1, +limit);
     const offset = (currentPage - 1) * limitPerPage;
 
-    if (role) {
-      filterConditions.push(eq(user.role, role));
-    }
+    const filterConditions = [];
 
     if (search) {
       filterConditions.push(
         or(ilike(user.name, `%${search}%`), ilike(user.email, `%${search}%`))
       );
+    }
+
+    if (role) {
+      filterConditions.push(eq(user.role, role as UserRoles));
     }
 
     const whereClause =
@@ -72,7 +53,6 @@ router.get("/", async (req, res) => {
         total: totalCount,
         totalPages: Math.ceil(totalCount / limitPerPage),
       },
-      message: "Users retrieved successfully",
     });
   } catch (error) {
     console.error("GET /users error:", error);
@@ -80,23 +60,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get user by ID
+// Get user details with role-specific data
 router.get("/:id", async (req, res) => {
   try {
-    const { id: userId } = parseRequest(userIdParamSchema, req.params);
+    const userId = req.params.id;
 
-    const userRecord = await getUserById(userId);
+    const [userRecord] = await db
+      .select()
+      .from(user)
+      .where(eq(user.id, userId));
 
     if (!userRecord) {
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({
-      data: userRecord,
-      message: "User retrieved successfully",
-    });
+    res.status(200).json({ data: userRecord });
   } catch (error) {
     console.error("GET /users/:id error:", error);
     res.status(500).json({ error: "Failed to fetch user" });
@@ -106,11 +84,8 @@ router.get("/:id", async (req, res) => {
 // List departments associated with a user
 router.get("/:id/departments", async (req, res) => {
   try {
-    const { id: userId } = parseRequest(userIdParamSchema, req.params);
-    const { page = 1, limit = 10 } = parseRequest(
-      userItemsQuerySchema,
-      req.query
-    );
+    const userId = req.params.id;
+    const { page = 1, limit = 10 } = req.query;
 
     const [userRecord] = await db
       .select({ id: user.id, role: user.role })
@@ -215,11 +190,8 @@ router.get("/:id/departments", async (req, res) => {
 // List subjects associated with a user
 router.get("/:id/subjects", async (req, res) => {
   try {
-    const { id: userId } = parseRequest(userIdParamSchema, req.params);
-    const { page = 1, limit = 10 } = parseRequest(
-      userItemsQuerySchema,
-      req.query
-    );
+    const userId = req.params.id;
+    const { page = 1, limit = 10 } = req.query;
 
     const [userRecord] = await db
       .select({ id: user.id, role: user.role })
@@ -336,91 +308,6 @@ router.get("/:id/subjects", async (req, res) => {
   } catch (error) {
     console.error("GET /users/:id/subjects error:", error);
     res.status(500).json({ error: "Failed to fetch user subjects" });
-  }
-});
-
-// Update user
-router.put("/:id", async (req, res) => {
-  try {
-    const { id: userId } = parseRequest(userIdParamSchema, req.params);
-    const { name, email, image, imageCldPubId, role } = parseRequest(
-      userUpdateSchema,
-      req.body
-    );
-
-    const existingUser = await getUserById(userId);
-    if (!existingUser)
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
-
-    if (email) {
-      const existingEmail = await getUserByEmail(email);
-
-      if (existingEmail && existingEmail.id !== userId)
-        return res.status(409).json({
-          error: "Email already exists",
-          message: "Email already exists",
-        });
-    }
-
-    const updateValues: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries({
-      name,
-      email,
-      image,
-      imageCldPubId,
-      role,
-    })) {
-      if (value !== undefined) {
-        updateValues[key] = value;
-      }
-    }
-
-    const [updatedUser] = await db
-      .update(user)
-      .set(updateValues)
-      .where(eq(user.id, userId))
-      .returning();
-
-    if (!updatedUser)
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
-
-    res.status(200).json({
-      data: updatedUser,
-      message: "User updated successfully",
-    });
-  } catch (error) {
-    console.error("PUT /users/:id error:", error);
-    res.status(500).json({ error: "Failed to update user" });
-  }
-});
-
-// Delete user
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id: userId } = parseRequest(userIdParamSchema, req.params);
-
-    const [deletedUser] = await db
-      .delete(user)
-      .where(eq(user.id, userId))
-      .returning();
-
-    if (!deletedUser)
-      return res
-        .status(404)
-        .json({ error: "User not found", message: "User not found" });
-
-    res.status(200).json({
-      data: deletedUser,
-      message: "User deleted successfully",
-    });
-  } catch (error) {
-    console.error("DELETE /users/:id error:", error);
-    res.status(500).json({ error: "Failed to delete user" });
   }
 });
 

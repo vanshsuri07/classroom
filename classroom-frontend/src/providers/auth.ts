@@ -33,18 +33,18 @@ export const authProvider: AuthProvider = {
           message: "Login failed",
         },
       };
-    } catch (error: any) {
+    } catch (error) {
       return {
         success: false,
         error: {
           name: "LoginError",
-          message: error?.message || "An error occurred during login",
+          message: (error as Error)?.message || "An error occurred during login",
         },
       };
     }
   },
 
-  register: async ({ email, password, name, role, image, imageCldPubId }) => {
+  register: async ({ email, password, name, image }) => {
     try {
       // Better-auth expects specific field names
       const { data, error } = await authClient.signUp.email({
@@ -52,8 +52,6 @@ export const authProvider: AuthProvider = {
         password,
         name,
         image: image || undefined, // This is the built-in image field
-        role: role || "student", // Custom field
-        imageCldPubId: imageCldPubId || undefined, // Custom field
       });
 
       if (error) {
@@ -81,13 +79,13 @@ export const authProvider: AuthProvider = {
           message: "Registration failed",
         },
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error("Registration exception:", error);
       return {
         success: false,
         error: {
           name: "RegisterError",
-          message: error?.message || "An error occurred during registration",
+          message: (error as Error)?.message || "An error occurred during registration",
         },
       };
     }
@@ -111,12 +109,12 @@ export const authProvider: AuthProvider = {
         success: true,
         redirectTo: "/login",
       };
-    } catch (error: any) {
+    } catch (error) {
       return {
         success: false,
         error: {
           name: "LogoutError",
-          message: error?.message || "An error occurred during logout",
+          message: (error as Error)?.message || "An error occurred during logout",
         },
       };
     }
@@ -142,6 +140,7 @@ export const authProvider: AuthProvider = {
         authenticated: false,
         redirectTo: "/login",
         logout: true,
+        message: (error as Error)?.message || "An error occurred during authentication check",
       };
     }
   },
@@ -156,12 +155,12 @@ export const authProvider: AuthProvider = {
           name: session.data.user.name,
           email: session.data.user.email,
           avatar: session.data.user.image,
-          role: session.data.user.role,
         };
       }
 
       return null;
     } catch (error) {
+        console.error(error);
       return null;
     }
   },
