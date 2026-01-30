@@ -1,31 +1,47 @@
-import {
-  Refine,
-  Authenticated,
-} from "@refinedev/core";
-import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
+import { Authenticated, Refine } from "@refinedev/core";
+import { DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
-import { BrowserRouter, Route, Routes, Outlet, Navigate } from "react-router";
 import routerProvider, {
-  UnsavedChangesNotifier,
   DocumentTitleHandler,
+  NavigateToResource,
+  UnsavedChangesNotifier,
 } from "@refinedev/react-router";
-import { dataProvider } from "./providers/data";
-import { authProvider } from "./providers/auth";
-import { Layout } from "./components/refine-ui/layout/layout";
-import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
-import { Toaster } from "./components/refine-ui/notification/toaster";
-import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import "./App.css";
-import Dashboard from "./pages/dashboard";
-import { BookOpen, GraduationCap, Home } from "lucide-react";
-import SubjectsCreate from "./pages/subjects/create";
+import { Toaster } from "./components/refine-ui/notification/toaster";
+import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
+import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
+import {
+  BookOpen,
+  Building2,
+  ClipboardCheck,
+  GraduationCap,
+  Home,
+  Users,
+} from "lucide-react";
 import SubjectsList from "./pages/subjects/list";
+import { Layout } from "./components/refine-ui/layout/layout";
+import SubjectsCreate from "./pages/subjects/create";
+// import SubjectsShow from "./pages/subject/show";
+import Dashboard from "./pages/dashboard";
+
+import { dataProvider } from "./providers/data";
 import ClassesList from "./pages/classes/list";
 import ClassesCreate from "./pages/classes/create";
-import ShowClasses from "./pages/classes/show";
-import Login from "./pages/login/login";
-import Signup from "./pages/signup.tsx/signup";
+import ClassesShow from "./pages/classes/show";
+import { authProvider } from "./providers/auth";
+import { Login } from "./pages/login/login";
+// import { Signup } from "./pages/signup/signup";
+// import DepartmentsList from "./pages/departments/list";
+// import DepartmentsCreate from "./pages/departments/create";
+// import DepartmentShow from "./pages/departments/show";
+import FacultyList from "./pages/faculty/list";
+import FacultyShow from "./pages/faculty/show";
+import EnrollmentsCreate from "./pages/enrollments/create";
+import EnrollmentsJoin from "./pages/enrollments/join";
+import EnrollmentConfirm from "./pages/enrollments/confirm";
+import Signup from "./pages/signup/signup";
 
 function App() {
   return (
@@ -41,69 +57,126 @@ function App() {
               options={{
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
-                projectId: "2ohZEK-slEtHW-uR6y4O",
+                projectId: "kkWuv7-GgBIfw-P8CGy0",
               }}
               resources={[
                 {
                   name: "dashboard",
-                  list: "/dashboard",
-                  meta: { label: "Home", icon: <Home /> },
+                  list: "/",
+                  meta: {
+                    label: "Home",
+                    icon: <Home />,
+                  },
                 },
                 {
                   name: "subjects",
                   list: "/subjects",
                   create: "/subjects/create",
-                  meta: { label: "Subjects", icon: <BookOpen /> },
+                  show: "/subjects/show/:id",
+                  meta: {
+                    label: "Subjects",
+                    icon: <BookOpen />,
+                  },
+                },
+                {
+                  name: "departments",
+                  list: "/departments",
+                  show: "/departments/show/:id",
+                  create: "/departments/create",
+                  meta: {
+                    label: "Departments",
+                    icon: <Building2 />,
+                  },
+                },
+                {
+                  name: "users",
+                  list: "/faculty",
+                  show: "/faculty/show/:id",
+                  meta: {
+                    label: "Faculty",
+                    icon: <Users />,
+                  },
+                },
+                {
+                  name: "enrollments",
+                  list: "/enrollments/create",
+                  create: "/enrollments/create",
+                  meta: {
+                    label: "Enrollments",
+                    icon: <ClipboardCheck />,
+                  },
                 },
                 {
                   name: "classes",
                   list: "/classes",
                   create: "/classes/create",
                   show: "/classes/show/:id",
-                  meta: { label: "Classes", icon: <GraduationCap /> },
+                  meta: {
+                    label: "Classes",
+                    icon: <GraduationCap />,
+                  },
                 },
               ]}
             >
               <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Signup />} />
-                
-                {/* Redirect root to dashboard */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                
-                {/* Protected routes */}
                 <Route
                   element={
-                    <Authenticated
-                      key="authenticated-layout"
-                      fallback={<Navigate to="/login" />}
-                    >
+                    <Authenticated key="public-routes" fallback={<Outlet />}>
+                      <NavigateToResource fallbackTo="/" />
+                    </Authenticated>
+                  }
+                >
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Signup />} />
+                </Route>
+
+                <Route
+                  element={
+                    <Authenticated key="private-routes" fallback={<Login />}>
                       <Layout>
                         <Outlet />
                       </Layout>
                     </Authenticated>
                   }
                 >
-                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/" element={<Dashboard />} />
 
                   <Route path="subjects">
                     <Route index element={<SubjectsList />} />
                     <Route path="create" element={<SubjectsCreate />} />
+                    {/* <Route path="show/:id" element={<SubjectsShow />} /> */}
                   </Route>
+
+                  {/* <Route path="departments">
+                    <Route index element={<DepartmentsList />} />
+                    <Route path="create" element={<DepartmentsCreate />} />
+                    <Route path="show/:id" element={<DepartmentShow />} />
+                  </Route> */}
+
+                  <Route path="faculty">
+                    <Route index element={<FacultyList />} />
+                    <Route path="show/:id" element={<FacultyShow />} />
+                  </Route>
+
+                  <Route path="enrollments">
+                    <Route path="create" element={<EnrollmentsCreate />} />
+                    <Route path="join" element={<EnrollmentsJoin />} />
+                    <Route path="confirm" element={<EnrollmentConfirm />} />
+                  </Route>
+
                   <Route path="classes">
                     <Route index element={<ClassesList />} />
                     <Route path="create" element={<ClassesCreate />} />
-                    <Route path="show/:id" element={<ShowClasses />} />
+                    <Route path="show/:id" element={<ClassesShow />} />
                   </Route>
                 </Route>
               </Routes>
+
               <Toaster />
               <RefineKbar />
               <UnsavedChangesNotifier />
               <DocumentTitleHandler />
             </Refine>
-            <DevtoolsPanel />
           </DevtoolsProvider>
         </ThemeProvider>
       </RefineKbarProvider>
