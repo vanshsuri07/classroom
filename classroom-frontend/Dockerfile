@@ -1,37 +1,50 @@
-# This Dockerfile uses `serve` npm package to serve the static files with node process.
-# You can find the Dockerfile for nginx in the following link:
-# https://github.com/refinedev/dockerfiles/blob/main/vite/Dockerfile.nginx
-FROM refinedev/node:18 AS base
+# Dev stage
+FROM node:18-alpine AS dev
 
-FROM base as deps
+WORKDIR /app
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json pnpm-lock.yaml ./
 
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
-
-FROM base as builder
-
-ENV NODE_ENV production
-
-COPY --from=deps /app/refine/node_modules ./node_modules
+RUN npm install -g pnpm && \
+  pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN npm run build
+EXPOSE 5173
 
-FROM base as runner
+CMD ["pnpm", "run", "dev", "--", "--host"]
 
-ENV NODE_ENV production
+# Build stage
+FROM node:18-alpine AS builder
 
-RUN npm install -g serve
+ARG VITE_CLOUDINARY_CLOUD_NAME
+ARG VITE_CLOUDINARY_UPLOAD_PRESET
+ARG VITE_CLOUDINARY_UPLOAD_URL
+ARG VITE_BACKEND_BASE_URL
+ENV VITE_CLOUDINARY_CLOUD_NAME=$VITE_CLOUDINARY_CLOUD_NAME
+ENV VITE_CLOUDINARY_UPLOAD_PRESET=$VITE_CLOUDINARY_UPLOAD_PRESET
+ENV VITE_CLOUDINARY_UPLOAD_URL=$VITE_CLOUDINARY_UPLOAD_URL
+ENV VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL
 
-COPY --from=builder /app/refine/dist ./
+WORKDIR /app
 
-USER refine
+COPY package.json pnpm-lock.yaml ./
 
-CMD ["serve"]
+RUN npm install -g pnpm && \
+  pnpm install --frozen-lockfile
+
+COPY . .
+
+ENV NODE_ENV=production
+RUN pnpm run build
+
+# Production stage  
+FROM nginx:alpine AS runner
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

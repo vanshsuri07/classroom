@@ -28,9 +28,9 @@ CREATE TABLE "departments" (
 );
 --> statement-breakpoint
 CREATE TABLE "enrollments" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "enrollments_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"student_id" text NOT NULL,
 	"class_id" integer NOT NULL,
-	CONSTRAINT "enrollments_student_id_class_id_pk" PRIMARY KEY("student_id","class_id"),
 	CONSTRAINT "enrollments_student_id_class_id_unique" UNIQUE("student_id","class_id")
 );
 --> statement-breakpoint

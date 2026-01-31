@@ -1,4 +1,5 @@
 import { GraduationCap, School } from "lucide-react";
+import { UserRole } from "@/types";
 
 export const USER_ROLES = {
     STUDENT: "student",
@@ -8,12 +9,12 @@ export const USER_ROLES = {
 
 export const ROLE_OPTIONS = [
     {
-        value: USER_ROLES.STUDENT,
+        value: UserRole.STUDENT,
         label: "Student",
         icon: GraduationCap,
     },
     {
-        value: USER_ROLES.TEACHER,
+        value: UserRole.TEACHER,
         label: "Teacher",
         icon: School,
     },
@@ -64,7 +65,7 @@ const getEnvVar = (key: string): string => {
     return value;
 };
 
-export const CLOUDINARY_UPLOAD_URL = getEnvVar("VITE_CLOUDINARY_UPLOAD_URL");
+export const CLOUDINARY_UPLOAD_URL=getEnvVar("VITE_CLOUDINARY_UPLOAD_URL");
 export const CLOUDINARY_CLOUD_NAME = getEnvVar("VITE_CLOUDINARY_CLOUD_NAME");
 export const BACKEND_BASE_URL = getEnvVar("VITE_BACKEND_BASE_URL");
 

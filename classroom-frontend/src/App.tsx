@@ -18,12 +18,13 @@ import {
   ClipboardCheck,
   GraduationCap,
   Home,
+  PencilIcon,
   Users,
 } from "lucide-react";
 import SubjectsList from "./pages/subjects/list";
 import { Layout } from "./components/refine-ui/layout/layout";
 import SubjectsCreate from "./pages/subjects/create";
-// import SubjectsShow from "./pages/subject/show";
+import SubjectsShow from "./pages/subjects/show";
 import Dashboard from "./pages/dashboard";
 
 import { dataProvider } from "./providers/data";
@@ -32,16 +33,15 @@ import ClassesCreate from "./pages/classes/create";
 import ClassesShow from "./pages/classes/show";
 import { authProvider } from "./providers/auth";
 import { Login } from "./pages/login/login";
-// import { Signup } from "./pages/signup/signup";
-// import DepartmentsList from "./pages/departments/list";
-// import DepartmentsCreate from "./pages/departments/create";
-// import DepartmentShow from "./pages/departments/show";
+import { Register } from "./pages/signup/signup";
+import DepartmentsList from "./pages/departments/list";
+import DepartmentsCreate from "./pages/departments/create";
+import DepartmentShow from "./pages/departments/show";
 import FacultyList from "./pages/faculty/list";
 import FacultyShow from "./pages/faculty/show";
 import EnrollmentsCreate from "./pages/enrollments/create";
 import EnrollmentsJoin from "./pages/enrollments/join";
 import EnrollmentConfirm from "./pages/enrollments/confirm";
-import Signup from "./pages/signup/signup";
 
 function App() {
   return (
@@ -58,6 +58,10 @@ function App() {
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
                 projectId: "kkWuv7-GgBIfw-P8CGy0",
+                title: {
+                  text: "Classroom",
+                  icon: <GraduationCap />,
+                },
               }}
               resources={[
                 {
@@ -113,7 +117,7 @@ function App() {
                   show: "/classes/show/:id",
                   meta: {
                     label: "Classes",
-                    icon: <GraduationCap />,
+                    icon: <PencilIcon />,
                   },
                 },
               ]}
@@ -127,7 +131,7 @@ function App() {
                   }
                 >
                   <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Signup />} />
+                  <Route path="/register" element={<Register />} />
                 </Route>
 
                 <Route
@@ -144,14 +148,14 @@ function App() {
                   <Route path="subjects">
                     <Route index element={<SubjectsList />} />
                     <Route path="create" element={<SubjectsCreate />} />
-                    {/* <Route path="show/:id" element={<SubjectsShow />} /> */}
+                    <Route path="show/:id" element={<SubjectsShow />} />
                   </Route>
 
-                  {/* <Route path="departments">
+                  <Route path="departments">
                     <Route index element={<DepartmentsList />} />
                     <Route path="create" element={<DepartmentsCreate />} />
                     <Route path="show/:id" element={<DepartmentShow />} />
-                  </Route> */}
+                  </Route>
 
                   <Route path="faculty">
                     <Route index element={<FacultyList />} />
