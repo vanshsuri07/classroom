@@ -6,6 +6,55 @@ import { classes, departments, enrollments, subjects, user } from "../db/schema/
 
 const router = express.Router();
 
+// Create a user
+router.post("/", async (req, res) => {
+  try {
+    const { id, name, email, role, emailVerified } = req.body;
+
+    // Validate required fields
+    if (!id || !name || !email) {
+      return res.status(400).json({ 
+        error: "id, name, and email are required" 
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // Validate role if provided
+    if (role && !["student", "teacher", "admin"].includes(role)) {
+      return res.status(400).json({ 
+        error: "Invalid role. Must be student, teacher, or admin" 
+      });
+    }
+
+    const [newUser] = await db
+      .insert(user)
+      .values({
+        id,
+        name,
+        email,
+        role: role || "student",
+        emailVerified: emailVerified || false,
+      })
+      .returning();
+
+    res.status(201).json({ data: newUser });
+  } catch (error) {
+    console.error("POST /users error:", error);
+    
+    // Handle duplicate email error
+    if (error instanceof Error && error.message.includes("unique")) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+    
+    res.status(500).json({ error: "Failed to create user" });
+  }
+});
+
 // Get all users with optional search, role filter, and pagination
 router.get("/", async (req, res) => {
   try {

@@ -12,7 +12,7 @@ import {
     uuid  // Add uuid import
 } from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
-import {user} from "./auth";
+import {user} from "./auth.js";
 
 export const classStatusEnum = pgEnum('class_status', ['active', 'inactive', 'archived']);
 
@@ -57,10 +57,11 @@ export const classes = pgTable('classes', {
 ]);
 
 export const enrollments = pgTable('enrollments', {
-    studentId: text('student_id').notNull().references(() => user.id, { onDelete: 'cascade' }),  // Changed from text to uuid
+    id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+    studentId: text('student_id').notNull().references(() => user.id, { onDelete: 'cascade' }),  
     classId: integer('class_id').notNull().references(() => classes.id, { onDelete: 'cascade' }),
 }, (table) => [
-    primaryKey({ columns: [table.studentId, table.classId] }),
+    
     unique('enrollments_student_id_class_id_unique').on(table.studentId, table.classId),
     index('enrollments_student_id_idx').on(table.studentId),
     index('enrollments_class_id_idx').on(table.classId),

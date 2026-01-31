@@ -58,13 +58,16 @@ export const SignUpForm = () => {
   const imagePublicId = form.watch("imageCldPubId");
 
   const onSubmit = async (values: RegisterFormValues) => {
+    console.log("Form values before submit:", values);
     try {
       register(
         {
-          ...values,
+          email: values.email,
+          password: values.password,
           name: values.name,
+          role: values.role,
           image: values.image || undefined,
-          imageCldPubId: values.imageCldPubId || undefined,
+          imageCldPubId: values.imageCldPubId || undefined
         },
         {
           onSuccess: (data) => {
@@ -121,7 +124,11 @@ export const SignUpForm = () => {
                             <button
                               key={role.value}
                               type="button"
-                              onClick={() => field.onChange(role.value)}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                field.onChange(role.value);
+                              }}
                               className={cn(
                                 "role-button",
                                 field.value === role.value && "is-active"
