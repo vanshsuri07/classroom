@@ -83,7 +83,7 @@ const ClassesShow = () => {
   const studentsTable = useTable<ClassUser>({
     columns: studentColumns,
     refineCoreProps: {
-      resource: `classes/${classId}`,
+      resource: `classes/${classId}/users`,
       pagination: {
         pageSize: 3,
         mode: "server",

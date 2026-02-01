@@ -1,8 +1,17 @@
 import { AuthProvider } from "@refinedev/core";
 import { authClient } from "@/lib/auth-client";
 
+interface SignUpParams {
+  email: string;
+  password: string;
+  name: string;
+  image?: string;
+  role?: string;
+  imageCldPubId?: string;
+}
+
 export const authProvider: AuthProvider = {
-  login: async ({ email, password }) => {
+  login: async ({ email, password }: { email: string; password: string }) => {
     try {
       const { data, error } = await authClient.signIn.email({
         email,
@@ -22,7 +31,7 @@ export const authProvider: AuthProvider = {
       if (data) {
         return {
           success: true,
-          redirectTo: "/dashboard",
+          redirectTo: "/",
         };
       }
 
@@ -44,15 +53,17 @@ export const authProvider: AuthProvider = {
     }
   },
 
-  register: async ({ email, password, name, image }) => {
+  register: async ({ email, password, name, image, role, imageCldPubId }: { email: string; password: string; name: string; image?: string; role?: string; imageCldPubId?: string,  }) => {
     try {
       // Better-auth expects specific field names
       const { data, error } = await authClient.signUp.email({
         email,
         password,
         name,
-        image: image || undefined, // This is the built-in image field
-      });
+        image: image || undefined,
+        role: role || "student",
+        imageCldPubId: imageCldPubId || undefined,
+      } as SignUpParams);
 
       if (error) {
         console.error("Registration error:", error);
@@ -125,9 +136,9 @@ export const authProvider: AuthProvider = {
       const session = await authClient.getSession();
 
       if (session?.data) {
-        return {
-          authenticated: true,
-        };
+    return {
+      authenticated: true,
+    };
       }
 
       return {

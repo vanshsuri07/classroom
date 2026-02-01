@@ -1,37 +1,40 @@
-# This Dockerfile uses `serve` npm package to serve the static files with node process.
-# You can find the Dockerfile for nginx in the following link:
-# https://github.com/refinedev/dockerfiles/blob/main/vite/Dockerfile.nginx
-FROM refinedev/node:18 AS base
+# Build stage
+FROM node:18-alpine AS builder
 
-FROM base as deps
+ARG VITE_CLOUDINARY_CLOUD_NAME
+ARG VITE_CLOUDINARY_UPLOAD_PRESET
+ARG VITE_CLOUDINARY_UPLOAD_URL
+ARG VITE_BACKEND_BASE_URL
+ENV VITE_CLOUDINARY_CLOUD_NAME=$VITE_CLOUDINARY_CLOUD_NAME
+ENV VITE_CLOUDINARY_UPLOAD_PRESET=$VITE_CLOUDINARY_UPLOAD_PRESET
+ENV VITE_CLOUDINARY_UPLOAD_URL=$VITE_CLOUDINARY_UPLOAD_URL
+ENV VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+WORKDIR /app
 
-RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-FROM base as builder
+# Install pnpm and dependencies
+RUN npm install -g pnpm && \
+  pnpm install --frozen-lockfile
 
-ENV NODE_ENV production
-
-COPY --from=deps /app/refine/node_modules ./node_modules
-
+# Copy source code
 COPY . .
 
-RUN npm run build
+# Build with explicit environment
+ENV NODE_ENV=production
+RUN pnpm run build
 
-FROM base as runner
+# Production stage  
+FROM nginx:alpine AS runner
 
-ENV NODE_ENV production
+# Copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN npm install -g serve
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/refine/dist ./
+EXPOSE 80
 
-USER refine
-
-CMD ["serve"]
+CMD ["nginx", "-g", "daemon off;"]

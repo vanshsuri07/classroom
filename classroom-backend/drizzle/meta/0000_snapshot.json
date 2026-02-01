@@ -1,5 +1,5 @@
 {
-  "id": "4f3a13a1-2434-4d4d-a999-52655b434021",
+  "id": "463180bb-d8ae-42f4-acae-9576f846130c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -252,6 +252,23 @@
       "name": "enrollments",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "enrollments_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
         "student_id": {
           "name": "student_id",
           "type": "text",
@@ -325,15 +342,7 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "enrollments_student_id_class_id_pk": {
-          "name": "enrollments_student_id_class_id_pk",
-          "columns": [
-            "student_id",
-            "class_id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "enrollments_student_id_class_id_unique": {
           "name": "enrollments_student_id_class_id_unique",
