@@ -1,3 +1,10 @@
+import { webcrypto } from "crypto";
+
+// Polyfill crypto for better-auth in Node.js ESM
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto as any;
+}
+
 import cors from "cors";
 import express from "express";
 import { toNodeHandler } from "better-auth/node";

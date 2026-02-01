@@ -1,6 +1,15 @@
 import { AuthProvider } from "@refinedev/core";
 import { authClient } from "@/lib/auth-client";
 
+interface SignUpParams {
+  email: string;
+  password: string;
+  name: string;
+  image?: string;
+  role?: string;
+  imageCldPubId?: string;
+}
+
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: { email: string; password: string }) => {
     try {
@@ -51,10 +60,10 @@ export const authProvider: AuthProvider = {
         email,
         password,
         name,
-        image: image || undefined, // This is the built-in image field
+        image: image || undefined,
         role: role || "student",
         imageCldPubId: imageCldPubId || undefined,
-      });
+      } as SignUpParams);
 
       if (error) {
         console.error("Registration error:", error);

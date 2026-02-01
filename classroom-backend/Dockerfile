@@ -1,22 +1,5 @@
-# Dev stage
-FROM node:18-alpine AS dev
-
-WORKDIR /app
-
-COPY package.json pnpm-lock.yaml ./
-
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
-
-COPY . .
-
-EXPOSE 8000
-
-CMD ["pnpm", "run", "dev"]
-
-# Build stage (rest stays the same)
+# Build stage
 FROM node:18-alpine AS builder
-
 
 WORKDIR /app
 

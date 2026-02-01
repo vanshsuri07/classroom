@@ -5,26 +5,30 @@ services:
     build:
       context: ./classroom-backend
       dockerfile: Dockerfile
-      target: dev
-    container_name: classroom_backend_dev
+      target: runner
+    image: classroom-backend:prod
+    container_name: classroom_backend
     ports:
       - "8000:8000"
+    restart: unless-stopped
     env_file:
       - ./classroom-backend/.env
-    volumes:
-      - ./classroom-backend/src:/app/src
-      - /app/node_modules
+    volumes: []
+
 
   frontend:
     build:
       context: ./classroom-frontend
       dockerfile: Dockerfile
-      target: dev
-    container_name: classroom_frontend_dev
+      target: runner
+      args:
+        VITE_CLOUDINARY_CLOUD_NAME: ${VITE_CLOUDINARY_CLOUD_NAME}
+        VITE_CLOUDINARY_UPLOAD_PRESET: ${VITE_CLOUDINARY_UPLOAD_PRESET}
+        VITE_CLOUDINARY_UPLOAD_URL: ${VITE_CLOUDINARY_UPLOAD_URL}
+        VITE_BACKEND_BASE_URL: http://localhost:8000/api/
+    image: classroom-frontend:prod
+    container_name: classroom_frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./classroom-frontend/src:/app/src
-      - /app/node_modules
-    depends_on:
-      - backend
+      - "3000:80"
+    restart: unless-stopped
+
