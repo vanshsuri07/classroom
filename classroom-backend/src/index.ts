@@ -22,6 +22,9 @@ import { auth } from "./lib/auth.js";
 const app = express();
 const PORT = 8000;
 
+// Trust proxy for nginx ingress
+app.set('trust proxy', 1);
+
 app.use(
   cors({
     origin: process.env.FRONTEND_URL, // React app URL

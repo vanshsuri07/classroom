@@ -1,61 +1,40 @@
-# Build stage
-FROM node:18-alpine AS builder
+# syntax=docker/dockerfile:1.7
 
+########################
+# Build
+########################
+FROM node:18-slim AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
-
-# Install pnpm and dependencies
-RUN npm install -g pnpm && \
-    pnpm install --frozen-lockfile
-
-# Copy source code and TypeScript config
-COPY tsconfig.json ./
-COPY src ./src
-COPY drizzle ./drizzle
-COPY drizzle.config.ts ./
-
-# Build TypeScript to JavaScript
-RUN pnpm run build
-
-# Verify build output
-RUN ls -la dist/
-
-# Production stage
-FROM node:18-alpine AS runner
-
-WORKDIR /app
-
-# Install pnpm
 RUN npm install -g pnpm
 
-# Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
+RUN --mount=type=cache,target=/root/.pnpm-store \
+    pnpm install --frozen-lockfile
 
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
+COPY . .
+RUN pnpm run build
 
-# Copy drizzle files for migrations
-COPY --from=builder /app/drizzle ./drizzle
-COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+########################
+# Runtime
+########################
+FROM node:18-slim
+WORKDIR /app
 
-# Change ownership
-RUN chown -R nodejs:nodejs /app
+RUN npm install -g pnpm
+RUN useradd -m appuser
 
-USER nodejs
+COPY --chown=appuser:appuser package.json pnpm-lock.yaml ./
 
+RUN --mount=type=cache,target=/root/.pnpm-store \
+    pnpm install --prod --frozen-lockfile
+
+COPY --chown=appuser:appuser --from=builder /app/dist ./dist
+COPY --chown=appuser:appuser --from=builder /app/drizzle ./drizzle
+COPY --chown=appuser:appuser --from=builder /app/drizzle.config.ts .
+
+USER appuser
 EXPOSE 8000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:8000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
-
 CMD ["node", "dist/index.js"]
