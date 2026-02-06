@@ -24,7 +24,7 @@
 
 > _Login screen sample (clean, recruiter-friendly UI)._
 
-![Classroom login screen](assets/screenshots/classroom-login.jpg)
+![Classroom login screen](assets/screenshots/classroom.PNG)
 
 ---
 
