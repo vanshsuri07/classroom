@@ -35,6 +35,9 @@ jobs:
         run: |
           docker build \
             --build-arg VITE_BACKEND_BASE_URL=http://20.189.121.173:30082/api/ \
+            --build-arg VITE_CLOUDINARY_CLOUD_NAME=${{ secrets.VITE_CLOUDINARY_CLOUD_NAME }} \
+            --build-arg VITE_CLOUDINARY_UPLOAD_PRESET=${{ secrets.VITE_CLOUDINARY_UPLOAD_PRESET }} \
+            --build-arg VITE_CLOUDINARY_UPLOAD_URL=${{ secrets.VITE_CLOUDINARY_UPLOAD_URL }} \
             -t ${{ secrets.DOCKER_USERNAME }}/classroom-frontend:${{ github.sha }} \
             ./classroom-frontend
 
