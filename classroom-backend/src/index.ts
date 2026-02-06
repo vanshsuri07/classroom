@@ -29,10 +29,10 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "http://20.189.121.173:30081"
-    ], // React app URL
-    methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-    credentials: true, // allow cookies
+      "http://20.189.121.173:30080"
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
 

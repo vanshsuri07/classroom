@@ -34,7 +34,7 @@ jobs:
       - name: Build & push frontend image
         run: |
           docker build \
-            --build-arg VITE_BACKEND_BASE_URL=http://backend:8000 \
+            --build-arg VITE_BACKEND_BASE_URL=http://20.189.121.173:30082/api/ \
             -t ${{ secrets.DOCKER_USERNAME }}/classroom-frontend:${{ github.sha }} \
             ./classroom-frontend
 

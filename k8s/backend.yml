@@ -22,7 +22,7 @@ spec:
                   name: backend-secrets
                   key: DATABASE_URL
             - name: FRONTEND_URL
-              value: "http://localhost:30080"
+              value: "http://20.189.121.173:30080"
             - name: BETTER_AUTH_SECRET
               value: "CykmDdBmkoPlbUsq0UcLPwKzu4u4mV2S"
             - name: ARCJET_KEY
@@ -56,9 +56,10 @@ kind: Service
 metadata:
   name: backend
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: backend
   ports:
     - port: 8000
       targetPort: 8000
+      nodePort: 30082
