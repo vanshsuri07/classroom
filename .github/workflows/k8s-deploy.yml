@@ -46,7 +46,12 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
 
-      # 6️⃣ Deploy to Kubernetes (rolling update)
+      # 6️⃣ Apply K8s manifests (service/config changes)
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f k8s/
+
+      # 7️⃣ Deploy to Kubernetes (rolling update)
       - name: Deploy to Kubernetes
         run: |
           kubectl set image deployment/backend \
