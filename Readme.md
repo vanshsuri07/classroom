@@ -81,7 +81,7 @@ The Kubernetes cluster runs on an Azure VM using k3s.
 - Public NodePort exposure
 - GitHub Actions deployment
 
-![Azure VM](assets/screenshots/azure-vm.png)
+![Azure VM](assets/screenshots/azure-vm.PNG)
 
 ### **CI/CD Pipeline**
 
@@ -91,7 +91,7 @@ Automated workflows using **GitHub Actions**:
 2.  **Push to Registry**: Images are tagged with the commit SHA and pushed to Docker Hub (`vanshsuri07/classroom-*`).
 3.  **Deploy to K8s**: The manifest files are updated with the new image tags, and `kubectl` commands apply the changes to the cluster.
 
-![Github Actions success](assets/screenshots/cicd-success.png)
+![Github Actions success](assets/screenshots/cicd-success.PNG)
 
 ### **Kubernetes Cluster**
 
@@ -102,9 +102,9 @@ The application runs on a Kubernetes cluster with the following components:
 - **Deployments**: Scalable pods for both services with health checks (Liveness/Readiness probes).
 - **Secrets**: Secure management of credentials (DB URL, API Keys).
 
-![kubectl gets pods](assets/screenshots/k8s-pods.png)
+![kubectl gets pods](assets/screenshots/k8s-pods.PNG)
 
-![kubectl gets svc](assets/screenshots/k8s-svc.png)
+![kubectl gets svc](assets/screenshots/k8s-svc.PNG)
 
 ```mermaid
 flowchart TD

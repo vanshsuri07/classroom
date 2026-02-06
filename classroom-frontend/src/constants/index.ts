@@ -67,7 +67,7 @@ const getEnvVar = (key: string): string => {
 
 export const CLOUDINARY_UPLOAD_URL=getEnvVar("VITE_CLOUDINARY_UPLOAD_URL");
 export const CLOUDINARY_CLOUD_NAME = getEnvVar("VITE_CLOUDINARY_CLOUD_NAME");
-export const BACKEND_BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL || "http://localhost:8000";
+export const BACKEND_BASE_URL = getEnvVar("VITE_BACKEND_BASE_URL");
 
 
 // export const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY
